@@ -26,6 +26,8 @@ public class BattleManager : MonoBehaviour
 
     private Vector2 leftStartPos, rightStartPos;
 
+    public float movex;
+
     void Start()
     {
         leftHP.text = "30"; leftATK.text = "40"; leftSPD.text = "30";
@@ -194,10 +196,10 @@ public class BattleManager : MonoBehaviour
     IEnumerator MoveCardsFancy()
     {
         float centerX = 0f;
-        Vector2 leftFar = leftStartPos + new Vector2(-120f, 0f);
-        Vector2 leftCenter = new Vector2(centerX - 120f, leftStartPos.y);
-        Vector2 rightFar = rightStartPos + new Vector2(120f, 0f);
-        Vector2 rightCenter = new Vector2(centerX + 120f, rightStartPos.y);
+        Vector2 leftFar = leftStartPos + new Vector2(-movex, 0f);
+        Vector2 leftCenter = new Vector2(centerX - movex, leftStartPos.y);
+        Vector2 rightFar = rightStartPos + new Vector2(movex, 0f);
+        Vector2 rightCenter = new Vector2(centerX + movex, rightStartPos.y);
 
         float t = 0f;
 
@@ -224,7 +226,7 @@ public class BattleManager : MonoBehaviour
     {
         if (clashEffectPrefab == null) return;
 
-        GameObject fx = Instantiate(clashEffectPrefab, effectParent);
+        GameObject fx = Instantiate(clashEffectPrefab, effectParent, true);
         fx.transform.localPosition = Vector3.zero;
 
         var psRenderer = fx.GetComponent<ParticleSystemRenderer>();
