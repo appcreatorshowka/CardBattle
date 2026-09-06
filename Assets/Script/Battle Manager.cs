@@ -5,28 +5,32 @@ using System.Collections;
 
 public class BattleManager : MonoBehaviour
 {
-    [Header("Input Fields")]
-    public TMP_InputField leftHP, leftATK, leftSPD;
-    public TMP_InputField rightHP, rightATK, rightSPD;
+    [Header("Input Fields")] 
+    public TMP_InputField leftHP, leftATK, leftSPD; // 左側のステータス入力フィールド
+    public TMP_InputField rightHP, rightATK, rightSPD; // 右側のステータス入力フィールド
 
     [Header("Cards")]
-    public RectTransform leftCard, rightCard;
+    public RectTransform leftCard, rightCard; // 左右のカードのRectTransform
 
     [Header("Effect")]
-    public GameObject clashEffectPrefab;
-    public RectTransform effectParent;
+    public GameObject clashEffectPrefab; // エフェクトのプレハブ
+    public RectTransform effectParent; // エフェクトの親Transform
 
     [Header("Shake Target")]
-    public RectTransform shakeArea;
+    public RectTransform shakeArea; // ぶつかったときに揺れるUIのRectTransform
 
     [Header("UI")]
-    public TMP_Text resultText;
-    public TMP_Text battleDescription;
-    public Button battleButton;
+    public TMP_Text resultText; // 結果表示用のテキスト
+    public TMP_Text battleDescription; // バトルの詳細ログ表示用のテキスト
+    public Button battleButton; // バトル開始ボタン
 
-    private Vector2 leftStartPos, rightStartPos;
+    private Vector2 leftStartPos, rightStartPos; // 左右のカードの初期位置
+    public ScrollRect scrollRect; // スクロールビューの参照
+    public Button randomButton; // ランダムステータス生成ボタン
+    public float pullDistance = 100f;      // 引きの距離（外側へ）
+    public float collideDistance = 250f;    // ぶつかる距離（中央付近)
 
-    public float movex;
+
 
     void Start()
     {
@@ -37,6 +41,8 @@ public class BattleManager : MonoBehaviour
         rightStartPos = rightCard.anchoredPosition;
 
         battleButton.onClick.AddListener(() => StartCoroutine(BattleSequence()));
+
+        randomButton.onClick.AddListener(SetRandomStats); // ← ここでイベント登録
     }
 
     IEnumerator BattleSequence()
@@ -84,25 +90,24 @@ public class BattleManager : MonoBehaviour
 
     IEnumerator RunBattleStepByStep()
     {
-        int lHP = int.Parse(leftHP.text)*4;
+        int lHP = int.Parse(leftHP.text) * 2;
         int lATK = int.Parse(leftATK.text);
         int lSPD = int.Parse(leftSPD.text);
 
-        int rHP = int.Parse(rightHP.text)*4;
+        int rHP = int.Parse(rightHP.text) * 2;
         int rATK = int.Parse(rightATK.text);
         int rSPD = int.Parse(rightSPD.text);
 
-        battleDescription.text = "[Battle Start]\n";
-        battleDescription.text += $"Left HP:{lHP}  Right HP:{rHP}\n\n";
+        AddLog("[Battle Start]");
+        AddLog($"Left HP:{lHP}  Right HP:{rHP}");
+
         yield return new WaitForSeconds(0.8f);
 
-        // 攻撃順決定
         bool leftFirst;
         if (lSPD > rSPD) leftFirst = true;
         else if (rSPD > lSPD) leftFirst = false;
-        else leftFirst = (Random.value < 0.5f); // SPD同じ → 50%
+        else leftFirst = (Random.value < 0.5f);
 
-        // ターン制ループ
         while (true)
         {
             if (leftFirst)
@@ -111,7 +116,7 @@ public class BattleManager : MonoBehaviour
                 yield return new WaitForSeconds(1.2f);
                 if (rHP <= 0)
                 {
-                    battleDescription.text += "[Result] Left Win";
+                    AddLog("[Result] Left Win");
                     resultText.text = "Left Win";
                     yield break;
                 }
@@ -120,7 +125,7 @@ public class BattleManager : MonoBehaviour
                 yield return new WaitForSeconds(1.2f);
                 if (lHP <= 0)
                 {
-                    battleDescription.text += "[Result] Right Win";
+                    AddLog("[Result] Right Win");
                     resultText.text = "Right Win";
                     yield break;
                 }
@@ -131,7 +136,7 @@ public class BattleManager : MonoBehaviour
                 yield return new WaitForSeconds(1.2f);
                 if (lHP <= 0)
                 {
-                    battleDescription.text += "[Result] Right Win";
+                    AddLog("[Result] Right Win");
                     resultText.text = "Right Win";
                     yield break;
                 }
@@ -140,51 +145,48 @@ public class BattleManager : MonoBehaviour
                 yield return new WaitForSeconds(1.2f);
                 if (rHP <= 0)
                 {
-                    battleDescription.text += "[Result] Left Win";
+                    AddLog("[Result] Left Win");
                     resultText.text = "Left Win";
                     yield break;
                 }
             }
 
-            battleDescription.text += "---- Next Turn ----\n";
+            AddLog("---- Next Turn ----");
             yield return new WaitForSeconds(0.8f);
         }
     }
 
-    // 攻撃処理（クリティカル・回避含む）
     int DoAttack(string attacker, string defender, int defHP, int atk, int spdA, int spdD)
     {
-        // 攻撃力は入力値そのまま（int）
         float dmg = atk;
 
-        // クリティカル（10%で1.2倍）
-        bool crit = Random.value < 0.10f;
-        if (crit) dmg *= 1.2f;
+        bool crit = Random.value < 0.25f;
+        if (crit)
+        {
+            dmg *= 1.2f;
+        }
+     
 
-        // 回避（SPD差）
         float evadeChance = GetEvadeChance(spdA - spdD);
         bool evaded = Random.value < evadeChance;
 
-        // 防御（50%でダメージ半減）
-        bool defended = Random.value < 0.50f;
+        bool defended = Random.value < 0.25f;
         if (defended) dmg *= 0.5f;
 
-        // 最終ダメージは int に丸める
         int finalDamage = evaded ? 0 : Mathf.RoundToInt(dmg);
 
         defHP -= finalDamage;
         if (defHP < 0) defHP = 0;
 
-        battleDescription.text += $"{attacker} attacks {defender} → {finalDamage} dmg";
-        if (evaded) battleDescription.text += " (Evaded!)";
-        if (crit) battleDescription.text += " (Critical!)";
-        if (defended) battleDescription.text += " (Defended!)";
-        battleDescription.text += $"\n{defender} HP after: {defHP}\n\n";
+        AddLog($"{attacker} attacks {defender} → {finalDamage} dmg"
+            + (evaded ? " (Evaded!)" : "")
+            + (crit ? " (Critical!)" : "")
+            + (defended ? " (Defended!)" : ""));
+
+        AddLog($"{defender} HP after: {defHP}");
 
         return defHP;
     }
-
-
 
     float GetEvadeChance(int spdDiff)
     {
@@ -196,13 +198,18 @@ public class BattleManager : MonoBehaviour
     IEnumerator MoveCardsFancy()
     {
         float centerX = 0f;
-        Vector2 leftFar = leftStartPos + new Vector2(-movex, 0f);
-        Vector2 leftCenter = new Vector2(centerX - movex, leftStartPos.y);
-        Vector2 rightFar = rightStartPos + new Vector2(movex, 0f);
-        Vector2 rightCenter = new Vector2(centerX + movex, rightStartPos.y);
+
+        // 引く距離（外側へ）
+        Vector2 leftFar = leftStartPos + new Vector2(-pullDistance, 0f);
+        Vector2 rightFar = rightStartPos + new Vector2(pullDistance, 0f);
+
+        // ぶつかる距離（中央付近）
+        Vector2 leftCenter = new Vector2(centerX - collideDistance, leftStartPos.y);
+        Vector2 rightCenter = new Vector2(centerX + collideDistance, rightStartPos.y);
 
         float t = 0f;
 
+        // 一旦外側へ引く
         while (t < 1f)
         {
             t += Time.deltaTime * 2f;
@@ -213,6 +220,7 @@ public class BattleManager : MonoBehaviour
 
         t = 0f;
 
+        // 中央へ戻る（ぶつかる位置）
         while (t < 1f)
         {
             t += Time.deltaTime * 3f;
@@ -221,6 +229,9 @@ public class BattleManager : MonoBehaviour
             yield return null;
         }
     }
+
+
+
 
     void PlayEffect()
     {
@@ -256,5 +267,39 @@ public class BattleManager : MonoBehaviour
     {
         leftCard.anchoredPosition = leftStartPos;
         rightCard.anchoredPosition = rightStartPos;
+    }
+
+    void AddLog(string log)
+    {
+        battleDescription.text += "\n" + log;
+
+        Canvas.ForceUpdateCanvases();
+        scrollRect.verticalNormalizedPosition = 0f;
+    }
+
+    void SetRandomStats()
+    {
+        // 左右のステータスを即時更新
+        SetRandomSide(leftHP, leftATK, leftSPD);
+        SetRandomSide(rightHP, rightATK, rightSPD);
+
+        // UIを即時リフレッシュ
+        leftHP.ForceLabelUpdate();
+        leftATK.ForceLabelUpdate();
+        leftSPD.ForceLabelUpdate();
+        rightHP.ForceLabelUpdate();
+        rightATK.ForceLabelUpdate();
+        rightSPD.ForceLabelUpdate();
+    }
+
+    void SetRandomSide(TMP_InputField hpField, TMP_InputField atkField, TMP_InputField spdField)
+    {
+        int hp = Random.Range(20, 60); // HPは安定範囲
+        int atk = Random.Range(10, 100 - hp); // Attackは残り範囲
+        int spd = 100 - hp - atk; // Speedは残り
+
+        hpField.text = hp.ToString();
+        atkField.text = atk.ToString();
+        spdField.text = spd.ToString();
     }
 }
