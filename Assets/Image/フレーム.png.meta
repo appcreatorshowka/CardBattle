@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 6bea568b6db89374f86667f24ba0c2d7
+guid: 216d694bf12255f4980e289d8c2b1306
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5300900815298350518
-    second: "\u767D\u67A0_0"
+      213: 3350018524276107160
+    second: "\u30D5\u30EC\u30FC\u30E0_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,13 +46,13 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 120, y: 120, z: 120, w: 120}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -139,23 +139,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u767D\u67A0_0"
+      name: "\u30D5\u30EC\u30FC\u30E0_0"
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 979
-        height: 472
+        width: 1488
+        height: 716
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 100, y: 100, z: 100, w: 100}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6bdcf65c435909940800000000000000
-      internalID: 5300900815298350518
+      spriteID: 897a4724918ad7e20800000000000000
+      internalID: 3350018524276107160
       vertices: []
       indices: 
       edges: []
@@ -164,8 +164,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
-    internalID: 1537655665
+    spriteID: e0afe0174cc7b184695362020b8820a2
+    internalID: 0
     vertices: []
     indices: 
     edges: []
@@ -174,7 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "\u767D\u67A0_0": 5300900815298350518
+      "\u30D5\u30EC\u30FC\u30E0_0": 3350018524276107160
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

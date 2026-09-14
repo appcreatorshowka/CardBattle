@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: b77ca285ede0d744791b4c1acbbbf6aa
+guid: 83175a8281048dd4a9dfccd20444b879
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1622283442730893676
-    second: "\u30D6\u30ED\u30AE\u30FC_0"
+      213: -8678300598632299337
+    second: "\u767D\u67A0Rev2_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -139,23 +139,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "\u30D6\u30ED\u30AE\u30FC_0"
+      name: "\u767D\u67A0Rev2_0"
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 558
-        height: 439
+        y: 28
+        width: 1077
+        height: 1345
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 150, y: 120, z: 110, w: 120}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c6109f82232838610800000000000000
-      internalID: 1622283442730893676
+      spriteID: 7b4467cc59b709780800000000000000
+      internalID: -8678300598632299337
       vertices: []
       indices: 
       edges: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: b56e064220d726e4daf550418ccfa9e0
     internalID: 0
     vertices: []
     indices: 
@@ -172,9 +172,11 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      "\u30D6\u30ED\u30AE\u30FC_0": 1622283442730893676
+      "\u767D\u67A0Rev2_0": -8678300598632299337
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
