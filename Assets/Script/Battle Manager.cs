@@ -46,7 +46,11 @@ public class CardBattle : MonoBehaviour
 
     [Header("Effect")]
     public GameObject clashEffectPrefab;
+    public GameObject slashEffectPrefab;
     public RectTransform effectParent;
+
+    public RectTransform leftEffectPosition;
+    public RectTransform rightEffectPosition;
 
     [Header("Shake Target")]
     public RectTransform shakeArea;
@@ -329,9 +333,32 @@ public class CardBattle : MonoBehaviour
         }
 
         // クリティカル
+        // クリティカル
         if (attackResult.isCritical)
         {
             AddLog("Critical hit!");
+
+            RectTransform effectPosition =
+                defender.name == "Left"
+                ? leftEffectPosition
+                : rightEffectPosition;
+
+            GameObject fx = Instantiate(
+                slashEffectPrefab,
+                effectPosition,
+                true
+            );
+
+            // 左キャラだけスラッシュを反転
+            if (defender.name == "Left")
+            {
+                Vector3 scale = fx.transform.localScale;
+                scale.x *= -1;
+                fx.transform.localScale = scale;
+            }
+
+            Destroy(fx, 1.5f);
+
             yield return new WaitForSeconds(logWaitTime);
         }
 

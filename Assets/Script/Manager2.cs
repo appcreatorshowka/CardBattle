@@ -43,8 +43,16 @@ public class Manager2 : MonoBehaviour
     public RectTransform rightCard; // 右側のカードのRectTransform
 
     [Header("Effect")]
-    public GameObject clashEffectPrefab; // 衝突エフェクトのプレハブ
-    public RectTransform effectParent; // エフェクトの親となるRectTransform
+    public GameObject clashEffectPrefab; // 衝突エフェクト
+    public GameObject smokeEffectPrefab; // 回避エフェクト
+    public GameObject slashEffectPrefab; // クリティカルエフェクト
+    public GameObject defendEffectPrefab; // 防御エフェクト
+
+    public RectTransform effectParent; // 中央エフェクトの親
+
+    [Header("Character Effect Positions")]
+    public RectTransform leftEffectPosition; // 左側キャラのエフェクト位置
+    public RectTransform rightEffectPosition; // 右側キャラのエフェクト位置
 
     [Header("Shake Target")]
     public RectTransform shakeArea; // 揺らす対象のRectTransform
@@ -304,6 +312,10 @@ public class Manager2 : MonoBehaviour
         // 回避
         if (attackResult.isEvaded) {
             AddLog($"{defender.name} evaded!");
+
+            // 防御側にスモークエフェクト
+            PlayCharacterEffect(defender, smokeEffectPrefab);
+
             yield return new WaitForSeconds(logWaitTime);
             yield break;
         }
@@ -311,12 +323,20 @@ public class Manager2 : MonoBehaviour
         // クリティカル
         if (attackResult.isCritical) {
             AddLog("Critical hit!");
+
+            // 防御側にスラッシュエフェクト
+            PlayCharacterEffect(defender, slashEffectPrefab);
+
             yield return new WaitForSeconds(logWaitTime);
         }
 
         // 防御
         if (attackResult.isDefended) {
             AddLog($"{defender.name} defended!");
+
+            // 防御側に防御エフェクト
+            PlayCharacterEffect(defender, defendEffectPrefab);
+
             yield return new WaitForSeconds(logWaitTime);
         }
 
@@ -355,12 +375,12 @@ public class Manager2 : MonoBehaviour
         }
 
         // 回避判定
-        float evadeChance = GetEvadeChance(attacker.spd - defender.spd);
+        float evadeChance = GetEvadeChance(defender.spd - attacker.spd);
 
         result.isEvaded = Random.value < evadeChance;
 
         // 防御判定
-        result.isDefended = Random.value < 0.25f;
+        result.isDefended = Random.value < 1.0f;
 
         if (result.isDefended) {
             damage *= 0.5f;
@@ -381,11 +401,11 @@ public class Manager2 : MonoBehaviour
     /// </summary>
     private float GetEvadeChance(int spdDiff) {
         if (spdDiff >= 20) {
-            return 0.50f;
+            return 0.40f;
         }
 
         if (spdDiff >= 10) {
-            return 0.25f;
+            return 0.20f;
         }
 
         return 0f;
@@ -459,6 +479,59 @@ public class Manager2 : MonoBehaviour
         }
 
         target.anchoredPosition = origin;
+    }
+
+    /// <summary>
+    /// キャラクター側のエフェクトを再生する
+    /// </summary>
+    /// <summary>
+    /// キャラクター側のエフェクトを再生する
+    /// </summary>
+    /// <summary>
+    /// キャラクター側のエフェクトを再生する
+    /// </summary>
+    private void PlayCharacterEffect(
+        BattleCharacter defender,
+        GameObject effectPrefab)
+    {
+        if (effectPrefab == null)
+        {
+            return;
+        }
+
+        RectTransform effectPosition;
+
+        if (defender.name == "Left")
+        {
+            effectPosition = leftEffectPosition;
+        }
+        else
+        {
+            effectPosition = rightEffectPosition;
+        }
+
+        // 衝突エフェクトと同じ方法で生成
+        GameObject fx = Instantiate(
+            effectPrefab,
+            effectPosition,
+            true
+        );
+
+        // エフェクトのワールド座標を位置指定オブジェクトに合わせる
+        fx.transform.position = effectPosition.position;
+
+        // 子オブジェクトも含めてRendererを探す
+        ParticleSystemRenderer psRenderer =
+            fx.GetComponentInChildren<ParticleSystemRenderer>();
+
+        if (psRenderer != null)
+        {
+            psRenderer.sortingLayerName = "UI";
+            psRenderer.sortingOrder = 200;
+        }
+
+        // 1.5秒後に削除
+        Destroy(fx, 1.5f);
     }
 
     /// <summary>
