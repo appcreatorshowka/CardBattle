@@ -58,10 +58,13 @@ public class Manager2 : MonoBehaviour
     public RectTransform shakeArea; // 揺らす対象のRectTransform
 
     [Header("UI")]
-    public TMP_Text resultText; // バトル結果を表示するテキスト
-    public TMP_Text battleDescription; // バトルログを表示するテキスト
+    public TMP_Text resultText; // バトル結果表示用のテキスト
+    public TMP_Text battleDescription; // バトルログ表示用のテキスト
     public Button battleButton; // バトル開始ボタン
     public Button restartButton; // バトルリスタートボタン
+
+    public Slider leftHPBar; // 左側のHPバー
+    public Slider rightHPBar; // 右側のHPバー
 
     [Header("Scroll")]
     public ScrollRect scrollRect; // バトルログのスクロールビュー
@@ -233,6 +236,12 @@ public class Manager2 : MonoBehaviour
         BattleCharacter leftCharacter = CreateCharacter("Left", leftHP, leftATK, leftSPD);
         BattleCharacter rightCharacter = CreateCharacter("Right", rightHP, rightATK, rightSPD);
 
+        leftHPBar.maxValue = leftCharacter.hp; // 左側のHPバーの最大値を設定
+        leftHPBar.value = leftCharacter.hp; // 左側のHPバーの現在値を設定
+
+        rightHPBar.maxValue = rightCharacter.hp; // 右側のHPバーの最大値を設定
+        rightHPBar.value = rightCharacter.hp; // 右側のHPバーの現在値を設定
+
         AddLog($"[Battle Start]\n");
 
         yield return new WaitForSeconds(logWaitTime);
@@ -344,6 +353,15 @@ public class Manager2 : MonoBehaviour
         defender.hp -= attackResult.damage;
         defender.hp = Mathf.Max(defender.hp, 0);
 
+        if (defender.name == "Left") // 左側のキャラクターの場合
+        {
+            leftHPBar.value = defender.hp; // 左側のHPバーの値を更新
+        }
+        else
+        {
+            rightHPBar.value = defender.hp; // 右側のHPバーの値を更新
+        }
+
         // 画面を揺らす
         StartCoroutine(ShakeUI(shakeArea));
         PlayEffect();
@@ -368,7 +386,7 @@ public class Manager2 : MonoBehaviour
         float damage = attacker.atk;
 
         // クリティカル判定
-        result.isCritical = Random.value < 0.25f;
+        result.isCritical = Random.value < 1.0f;
 
         if (result.isCritical) {
             damage *= 1.2f;
@@ -380,7 +398,7 @@ public class Manager2 : MonoBehaviour
         result.isEvaded = Random.value < evadeChance;
 
         // 防御判定
-        result.isDefended = Random.value < 1.0f;
+        result.isDefended = Random.value < 0.25f;
 
         if (result.isDefended) {
             damage *= 0.5f;
@@ -408,7 +426,7 @@ public class Manager2 : MonoBehaviour
             return 0.20f;
         }
 
-        return 0f;
+        return 0.1f;
     }
 
     /// <summary>
@@ -612,6 +630,9 @@ public class Manager2 : MonoBehaviour
 
         // ★ 初期ステータスに戻す
         SetInitialStats();
+
+        leftHPBar.value = 0; // 左側のHPバーを初期化
+        rightHPBar.value = 0; // 右側のHPバーを初期化
 
         // ★ Battleボタンを再び押せるようにする
         battleButton.gameObject.SetActive(true);
