@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.GraphicsBuffer;
 
 public class BattleCharacter // バトルキャラクターのステータスを保持するクラス
 { 
@@ -41,6 +42,10 @@ public class Manager2 : MonoBehaviour
     [Header("Cards")]
     public RectTransform leftCard; // 左側のカードのRectTransform
     public RectTransform rightCard; // 右側のカードのRectTransform
+
+    [Header("Character Images")]
+    [SerializeField] private Image leftCharacterImage;
+    [SerializeField] private Image rightCharacterImage;
 
     [Header("Effect")]
     public GameObject clashEffectPrefab; // 衝突エフェクト
@@ -307,9 +312,7 @@ public class Manager2 : MonoBehaviour
         return Random.value < 0.5f;
     }
 
-    /// <summary>
     /// 攻撃を実行する
-    /// </summary>
     private IEnumerator DoAttack(BattleCharacter attacker, BattleCharacter defender) {
         AttackResult attackResult = CalculateAttack(attacker, defender);
 
@@ -332,6 +335,14 @@ public class Manager2 : MonoBehaviour
         // クリティカル
         if (attackResult.isCritical) {
             AddLog("Critical hit!");
+
+            Image attackerImage =
+
+            // 攻撃側のキャラクター画像を取得
+            attacker.name == "Left"
+            ? leftCharacterImage
+            : rightCharacterImage;
+            StartCoroutine(CriticalGlow(attackerImage));
 
             // 防御側にスラッシュエフェクト
             PlayCharacterEffect(defender, slashEffectPrefab);
@@ -363,8 +374,8 @@ public class Manager2 : MonoBehaviour
         }
 
         // 画面を揺らす
-        StartCoroutine(ShakeUI(shakeArea));
-        PlayEffect();
+        // StartCoroutine(ShakeUI(shakeArea));
+        // PlayEffect();
 
         // ダメージ
         AddLog($"{defender.name} took {attackResult.damage} damage!");
@@ -377,9 +388,20 @@ public class Manager2 : MonoBehaviour
         yield return new WaitForSeconds(logWaitTime);
     }
 
-    /// <summary>
+    private IEnumerator CriticalGlow(Image target) // クリティカル時の光るエフェクト
+    {   
+    Color original = target.color;
+    Color gold = new Color(1f, 0.85f, 0f);
+    for (int i = 0; i< 3; i++)
+        {
+        target.color = gold;
+        yield return new WaitForSeconds(0.08f);
+        target.color = original;
+        yield return new WaitForSeconds(0.08f);
+        }
+    }
+
     /// 攻撃結果を計算する
-    /// </summary>
     private AttackResult CalculateAttack(BattleCharacter attacker, BattleCharacter defender) {
         AttackResult result = new();
 
@@ -429,9 +451,7 @@ public class Manager2 : MonoBehaviour
         return 0.1f;
     }
 
-    /// <summary>
     /// カードを外側に引いてから中央へ移動する
-    /// </summary>
     private IEnumerator MoveCardsFancy() {
         float centerX = 0f;
 
@@ -445,9 +465,7 @@ public class Manager2 : MonoBehaviour
         yield return StartCoroutine(MoveCards(leftCenter, rightCenter, 3f));
     }
 
-    /// <summary>
     /// 左右のカードを指定位置へ移動する
-    /// </summary>
     private IEnumerator MoveCards(Vector2 leftTarget, Vector2 rightTarget, float speed) {
         float t = 0f;
 
@@ -464,9 +482,7 @@ public class Manager2 : MonoBehaviour
         rightCard.anchoredPosition = rightTarget;
     }
 
-    /// <summary>
     /// 衝突エフェクトを再生する
-    /// </summary>
     private void PlayEffect() {
         if (clashEffectPrefab == null) {
             return;
@@ -484,9 +500,7 @@ public class Manager2 : MonoBehaviour
         Destroy(fx, 2f);
     }
 
-    /// <summary>
     /// UIを揺らす
-    /// </summary>
     private IEnumerator ShakeUI(
         RectTransform target) {
         Vector3 origin = target.anchoredPosition;
@@ -499,15 +513,7 @@ public class Manager2 : MonoBehaviour
         target.anchoredPosition = origin;
     }
 
-    /// <summary>
     /// キャラクター側のエフェクトを再生する
-    /// </summary>
-    /// <summary>
-    /// キャラクター側のエフェクトを再生する
-    /// </summary>
-    /// <summary>
-    /// キャラクター側のエフェクトを再生する
-    /// </summary>
     private void PlayCharacterEffect(
         BattleCharacter defender,
         GameObject effectPrefab)
