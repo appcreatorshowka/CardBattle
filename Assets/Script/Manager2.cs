@@ -87,8 +87,18 @@ public class Manager2 : MonoBehaviour
     private Vector2 leftStartPos; // 左側のカードの初期位置
     private Vector2 rightStartPos; // 右側のカードの初期位置
 
+    [Header("Sound")]
+    public AudioSource audioSource;
+
+    public AudioClip clashSound;
+    public AudioClip attackSound;
+    public AudioClip criticalSound;
+    public AudioClip defendSound;
+    public AudioClip evadeSound;
+
     private bool isStart; // バトルが開始されたかどうかのフラグ
     [SerializeField] private CanvasGroup cg; // UIの操作を制御するCanvasGroup
+
 
     private void Start() 
     {
@@ -105,26 +115,20 @@ public class Manager2 : MonoBehaviour
 
     }
 
-    /// <summary>
     /// 初期ステータスを設定する
-    /// </summary>
     private void SetInitialStats() {
         SetStats(leftHP, leftATK, leftSPD, 30, 40, 30);
         SetStats(rightHP, rightATK, rightSPD, 30, 40, 30);
     }
 
-    /// <summary>
     /// InputFieldにステータスを設定する
-    /// </summary>
     private void SetStats(TMP_InputField hpField, TMP_InputField atkField, TMP_InputField spdField, int hp, int atk, int spd) {
         hpField.text = hp.ToString();
         atkField.text = atk.ToString();
         spdField.text = spd.ToString();
     }
 
-    /// <summary>
     /// バトルを開始する
-    /// </summary>
     private void StartBattle() {
         if (isStart) {
             return;
@@ -141,19 +145,14 @@ public class Manager2 : MonoBehaviour
         StartCoroutine(BattleSequence());
     }
 
-    /// <summary>
     /// バトル全体の流れ
-    /// </summary>
     private IEnumerator BattleSequence() {
         ClearBattleResult();
-
-        //if (!IsValidInput()) {
-        //    yield break;
-        //}
 
         yield return StartCoroutine(MoveCardsFancy());
 
         PlayEffect();
+        audioSource.PlayOneShot(clashSound);
 
         StartCoroutine(ShakeUI(shakeArea));
 
@@ -164,17 +163,13 @@ public class Manager2 : MonoBehaviour
         ResetCards();
     }
 
-    /// <summary>
     /// バトル結果とログをクリアする
-    /// </summary>
     private void ClearBattleResult() {
         resultText.text = "";
         battleDescription.text = "";
     }
 
-    /// <summary>
     /// 入力値が正しいか確認する
-    /// </summary>
     private bool IsValidInput() {
         if (IsAnyInputEmpty()) {
             resultText.text = "Input is missing.";
@@ -199,9 +194,7 @@ public class Manager2 : MonoBehaviour
         return true;
     }
 
-    /// <summary>
     /// 入力欄に空欄があるか確認する
-    /// </summary>
     private bool IsAnyInputEmpty() {
         return string.IsNullOrEmpty(leftHP.text) ||
                string.IsNullOrEmpty(leftATK.text) ||
@@ -211,9 +204,7 @@ public class Manager2 : MonoBehaviour
                string.IsNullOrEmpty(rightSPD.text);
     }
 
-    /// <summary>
     /// InputFieldからステータスを取得する
-    /// </summary>
     private bool TryGetStats(TMP_InputField hpField, TMP_InputField atkField, TMP_InputField spdField, out int hp, out int atk, out int spd) {
         bool hpResult = int.TryParse(hpField.text, out hp);
         bool atkResult = int.TryParse(atkField.text, out atk);
@@ -222,9 +213,7 @@ public class Manager2 : MonoBehaviour
         return hpResult && atkResult && spdResult;
     }
 
-    /// <summary>
     /// InputFieldからバトルキャラクターを作成する
-    /// </summary>
     private BattleCharacter CreateCharacter(string characterName, TMP_InputField hpField, TMP_InputField atkField, TMP_InputField spdField) {
         int hp = int.Parse(hpField.text) * 2;
         int atk = int.Parse(atkField.text);
@@ -233,9 +222,7 @@ public class Manager2 : MonoBehaviour
         return new BattleCharacter(characterName, hp, atk, spd);
     }
 
-    /// <summary>
     /// バトルをステップごとに実行する
-    /// </summary>
     private IEnumerator RunBattleStepByStep() {
         // 双方のキャラ作成
         BattleCharacter leftCharacter = CreateCharacter("Left", leftHP, leftATK, leftSPD);
@@ -297,9 +284,7 @@ public class Manager2 : MonoBehaviour
         }
     }
 
-    /// <summary>
     /// 先攻するキャラクターを決定する
-    /// </summary>
     private bool DecideFirstTurn(BattleCharacter leftCharacter, BattleCharacter rightCharacter) {
         if (leftCharacter.spd > rightCharacter.spd) {
             return true;
@@ -325,6 +310,8 @@ public class Manager2 : MonoBehaviour
         if (attackResult.isEvaded) {
             AddLog($"{defender.name} evaded!");
 
+            audioSource.PlayOneShot(evadeSound);
+
             // 防御側にスモークエフェクト
             PlayCharacterEffect(defender, smokeEffectPrefab);
 
@@ -335,6 +322,8 @@ public class Manager2 : MonoBehaviour
         // クリティカル
         if (attackResult.isCritical) {
             AddLog("Critical hit!");
+
+            audioSource.PlayOneShot(criticalSound);
 
             Image attackerImage =
 
@@ -353,6 +342,8 @@ public class Manager2 : MonoBehaviour
         // 防御
         if (attackResult.isDefended) {
             AddLog($"{defender.name} defended!");
+
+            audioSource.PlayOneShot(defendSound);
 
             // 防御側に防御エフェクト
             PlayCharacterEffect(defender, defendEffectPrefab);
@@ -374,7 +365,7 @@ public class Manager2 : MonoBehaviour
         }
 
         // 画面を揺らす
-        // StartCoroutine(ShakeUI(shakeArea));
+        StartCoroutine(ShakeUI(shakeArea));
         // PlayEffect();
 
         // ダメージ
@@ -436,9 +427,7 @@ public class Manager2 : MonoBehaviour
         return result;
     }
 
-    /// <summary>
     /// SPD差から回避率を取得する
-    /// </summary>
     private float GetEvadeChance(int spdDiff) {
         if (spdDiff >= 20) {
             return 0.40f;
@@ -558,18 +547,14 @@ public class Manager2 : MonoBehaviour
         Destroy(fx, 1.5f);
     }
 
-    /// <summary>
     /// カードを初期位置に戻す
-    /// </summary>
     private void ResetCards() // カードを初期位置に戻す
     {
         leftCard.anchoredPosition = leftStartPos; // 左側のカードを初期位置に戻す
         rightCard.anchoredPosition = rightStartPos; // 右側のカードを初期位置に戻す
     }
 
-    /// <summary>
     /// バトルログを1行追加する
-    /// </summary>
     private void AddLog(string log) // バトルログを1行追加する 
     {
         battleDescription.text += "\n" + log; // バトルログに1行追加する
@@ -579,9 +564,7 @@ public class Manager2 : MonoBehaviour
         scrollRect.verticalNormalizedPosition = 0f; // スクロールを一番下に移動する
     }
 
-    /// <summary>
     /// 左右のステータスをランダムに設定する
-    /// </summary>
     private void SetRandomStats() // HP + ATK + SPD = 100になるようにランダムに設定
     {
         if (isStart) // バトル中はランダム設定を無効化
@@ -595,9 +578,7 @@ public class Manager2 : MonoBehaviour
         RefreshInputFields(); // InputFieldの表示を強制的に更新
     }
 
-    /// <summary>
     /// 1キャラクター分のランダムステータスを設定する
-    /// </summary>
     private void SetRandomSide(TMP_InputField hpField, TMP_InputField atkField, TMP_InputField spdField) // HP + ATK + SPD = 100になるようにランダムに設定
     {
         int hp = Random.Range(20, 60); // HPは20～60の範囲でランダムに設定
@@ -607,9 +588,7 @@ public class Manager2 : MonoBehaviour
         SetStats(hpField, atkField, spdField, hp, atk, spd); // InputFieldに設定
     }
 
-    /// <summary>
     /// InputFieldの表示を更新する
-    /// </summary>
     private void RefreshInputFields() // InputFieldの表示を強制的に更新する
     {
         leftHP.ForceLabelUpdate(); // InputFieldの表示を強制的に更新
