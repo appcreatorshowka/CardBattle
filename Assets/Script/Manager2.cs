@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 
+
 public class BattleCharacter // バトルキャラクターのステータスを保持するクラス
 { 
     public string name; // キャラクター名
@@ -437,7 +438,7 @@ public class Manager2 : MonoBehaviour
         float damage = attacker.atk;
 
         // クリティカル判定
-        result.isCritical = Random.value < 0.5f;
+        result.isCritical = Random.value < 0.3f;
 
         if (result.isCritical) {
             damage *= 1.2f;
@@ -449,7 +450,7 @@ public class Manager2 : MonoBehaviour
         result.isEvaded = Random.value < evadeChance;
 
         // 防御判定
-        result.isDefended = Random.value < 0.5f;
+        result.isDefended = Random.value < 0.3f;
 
         if (result.isDefended) {
             damage *= 0.5f;
