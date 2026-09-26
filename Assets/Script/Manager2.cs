@@ -513,8 +513,9 @@ public class Manager2 : MonoBehaviour
         }
 
         RectTransform effectPosition;
+        bool isLeft = defender.name == "Left";
 
-        if (defender.name == "Left")
+        if (isLeft)
         {
             effectPosition = leftEffectPosition;
         }
@@ -527,8 +528,14 @@ public class Manager2 : MonoBehaviour
         GameObject fx = Instantiate(
             effectPrefab,
             effectPosition,
-            true
+            false
         );
+
+        if (isLeft)
+        {
+            fx.transform.localScale = new Vector3(fx.transform.localScale.x*-1, fx.transform.localScale.y, fx.transform.localScale.z);
+        }
+      
 
         // エフェクトのワールド座標を位置指定オブジェクトに合わせる
         fx.transform.position = effectPosition.position;
