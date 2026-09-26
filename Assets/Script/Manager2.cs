@@ -128,6 +128,42 @@ public class Manager2 : MonoBehaviour
         spdField.text = spd.ToString();
     }
 
+    // 画像を選択してキャラクター画像を設定する
+    private void LoadImageTo(Image targetImage)
+    {
+        NativeGallery.GetImageFromGallery(
+        (path) =>
+        {
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            Texture2D texture =
+                NativeGallery.LoadImageAtPath(path);
+
+            if (texture == null)
+                return;
+
+            Sprite sprite = Sprite.Create(
+                texture,
+                new Rect(0, 0, texture.width, texture.height),
+                new Vector2(0.5f, 0.5f)
+            );
+
+            targetImage.sprite = sprite;
+        },
+        "画像を選択");
+    }
+
+    public void SelectLeftImage()
+    {
+        LoadImageTo(leftCharacterImage);
+    }
+
+    public void SelectRightImage()
+    {
+        LoadImageTo(rightCharacterImage);
+    }
+
     /// バトルを開始する
     private void StartBattle() {
         if (isStart) {
@@ -319,6 +355,19 @@ public class Manager2 : MonoBehaviour
             yield break;
         }
 
+        // 防御
+        if (attackResult.isDefended)
+        {
+            AddLog($"{defender.name} defended!");
+
+            audioSource.PlayOneShot(defendSound);
+
+            // 防御側に防御エフェクト
+            PlayCharacterEffect(defender, defendEffectPrefab);
+
+            yield return new WaitForSeconds(logWaitTime);
+        }
+
         // クリティカル
         if (attackResult.isCritical) {
             AddLog("Critical hit!");
@@ -339,17 +388,6 @@ public class Manager2 : MonoBehaviour
             yield return new WaitForSeconds(logWaitTime);
         }
 
-        // 防御
-        if (attackResult.isDefended) {
-            AddLog($"{defender.name} defended!");
-
-            audioSource.PlayOneShot(defendSound);
-
-            // 防御側に防御エフェクト
-            PlayCharacterEffect(defender, defendEffectPrefab);
-
-            yield return new WaitForSeconds(logWaitTime);
-        }
 
         // HPを減らす
         defender.hp -= attackResult.damage;
@@ -399,7 +437,7 @@ public class Manager2 : MonoBehaviour
         float damage = attacker.atk;
 
         // クリティカル判定
-        result.isCritical = Random.value < 1.0f;
+        result.isCritical = Random.value < 0.5f;
 
         if (result.isCritical) {
             damage *= 1.2f;
@@ -411,7 +449,7 @@ public class Manager2 : MonoBehaviour
         result.isEvaded = Random.value < evadeChance;
 
         // 防御判定
-        result.isDefended = Random.value < 0.25f;
+        result.isDefended = Random.value < 0.5f;
 
         if (result.isDefended) {
             damage *= 0.5f;
