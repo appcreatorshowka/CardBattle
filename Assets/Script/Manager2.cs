@@ -209,22 +209,22 @@ public class Manager2 : MonoBehaviour
     /// 入力値が正しいか確認する
     private bool IsValidInput() {
         if (IsAnyInputEmpty()) {
-            resultText.text = "Input is missing.";
+            resultText.text = "入力に誤りがあります";
             return false;
         }
 
         if (!TryGetStats(leftHP, leftATK, leftSPD, out int leftHPValue, out int leftATKValue, out int leftSPDValue)) {
-            resultText.text = "Please enter numbers.";
+            resultText.text = "数値を入力して下さい";
             return false;
         }
 
         if (!TryGetStats(rightHP, rightATK, rightSPD, out int rightHPValue, out int rightATKValue, out int rightSPDValue)) {
-            resultText.text = "Please enter numbers.";
+            resultText.text = "数値を入力して下さい";
             return false;
         }
 
         if (leftHPValue + leftATKValue + leftSPDValue != 100 || rightHPValue + rightATKValue + rightSPDValue != 100) {
-            resultText.text = "The total status must be 100.";
+            resultText.text = "ステータスの合計が100ではありません";
             return false;
         }
 
@@ -262,8 +262,8 @@ public class Manager2 : MonoBehaviour
     /// バトルをステップごとに実行する
     private IEnumerator RunBattleStepByStep() {
         // 双方のキャラ作成
-        BattleCharacter leftCharacter = CreateCharacter("Left", leftHP, leftATK, leftSPD);
-        BattleCharacter rightCharacter = CreateCharacter("Right", rightHP, rightATK, rightSPD);
+        BattleCharacter leftCharacter = CreateCharacter("左", leftHP, leftATK, leftSPD);
+        BattleCharacter rightCharacter = CreateCharacter("右", rightHP, rightATK, rightSPD);
 
         leftHPBar.maxValue = leftCharacter.hp; // 左側のHPバーの最大値を設定
         leftHPBar.value = leftCharacter.hp; // 左側のHPバーの現在値を設定
@@ -282,7 +282,7 @@ public class Manager2 : MonoBehaviour
         // 先行を決める
         bool leftTurn = DecideFirstTurn(leftCharacter, rightCharacter);
 
-        AddLog(leftTurn ? "Left goes first!" : "Right goes first!");
+        AddLog(leftTurn ? "左が先行！" : "右が先行！");
 
         yield return new WaitForSeconds(logWaitTime);
 
@@ -303,8 +303,8 @@ public class Manager2 : MonoBehaviour
 
             // 攻撃を受けた側のHPが0以下ならバトル終了
             if (defender.hp <= 0) {
-                AddLog($"\n[Result] {attacker.name} Win\n");
-                resultText.text = $"{attacker.name} Win";
+                AddLog($"\n[Result] {attacker.name} の勝ち\n");
+                resultText.text = $"{attacker.name} の勝ち";
                 cg.blocksRaycasts = true; // UIの操作を再び可能にする
                 cg.interactable = true; // UIの操作を再び可能にする
                 restartButton.gameObject.SetActive(true); // Restartボタンを表示
@@ -339,13 +339,13 @@ public class Manager2 : MonoBehaviour
         AttackResult attackResult = CalculateAttack(attacker, defender);
 
         // 攻撃開始
-        AddLog($"{attacker.name} attacks {defender.name}!");
+        AddLog($"{attacker.name} による {defender.name}への攻撃！");
 
         yield return new WaitForSeconds(logWaitTime);
 
         // 回避
         if (attackResult.isEvaded) {
-            AddLog($"{defender.name} evaded!");
+            AddLog($"{defender.name} は攻撃を回避した！");
 
             audioSource.PlayOneShot(evadeSound);
 
@@ -359,7 +359,7 @@ public class Manager2 : MonoBehaviour
         // 防御
         if (attackResult.isDefended)
         {
-            AddLog($"{defender.name} defended!");
+            AddLog($"{defender.name} は防御した！");
 
             audioSource.PlayOneShot(defendSound);
 
@@ -371,14 +371,14 @@ public class Manager2 : MonoBehaviour
 
         // クリティカル
         if (attackResult.isCritical) {
-            AddLog("Critical hit!");
+            AddLog("クリティカルヒット！");
 
             audioSource.PlayOneShot(criticalSound);
 
             Image attackerImage =
 
             // 攻撃側のキャラクター画像を取得
-            attacker.name == "Left"
+            attacker.name == "左"
             ? leftCharacterImage
             : rightCharacterImage;
             StartCoroutine(CriticalGlow(attackerImage));
@@ -387,6 +387,11 @@ public class Manager2 : MonoBehaviour
             PlayCharacterEffect(defender, slashEffectPrefab);
 
             yield return new WaitForSeconds(logWaitTime);
+
+        }
+        else
+        {
+            audioSource.PlayOneShot(attackSound);
         }
 
 
@@ -394,7 +399,7 @@ public class Manager2 : MonoBehaviour
         defender.hp -= attackResult.damage;
         defender.hp = Mathf.Max(defender.hp, 0);
 
-        if (defender.name == "Left") // 左側のキャラクターの場合
+        if (defender.name == "左") // 左側のキャラクターの場合
         {
             leftHPBar.value = defender.hp; // 左側のHPバーの値を更新
         }
