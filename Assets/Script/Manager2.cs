@@ -271,11 +271,11 @@ public class Manager2 : MonoBehaviour
         rightHPBar.maxValue = rightCharacter.hp; // 右側のHPバーの最大値を設定
         rightHPBar.value = rightCharacter.hp; // 右側のHPバーの現在値を設定
 
-        AddLog($"[Battle Start]\n");
+        AddLog($"[バトル開始]\n");
 
         yield return new WaitForSeconds(logWaitTime);
 
-        AddLog($"Left HP:{leftCharacter.hp} / Right HP:{rightCharacter.hp}");
+        AddLog($"左 HP:{leftCharacter.hp} / 右 HP:{rightCharacter.hp}");
 
         yield return new WaitForSeconds(logWaitTime);
 
@@ -303,7 +303,7 @@ public class Manager2 : MonoBehaviour
 
             // 攻撃を受けた側のHPが0以下ならバトル終了
             if (defender.hp <= 0) {
-                AddLog($"\n[Result] {attacker.name} の勝ち\n");
+                AddLog($"\n[結果] {attacker.name} の勝ち\n");
                 resultText.text = $"{attacker.name} の勝ち";
                 cg.blocksRaycasts = true; // UIの操作を再び可能にする
                 cg.interactable = true; // UIの操作を再び可能にする
@@ -313,7 +313,7 @@ public class Manager2 : MonoBehaviour
 
             yield return new WaitForSeconds(0.5f);
 
-            AddLog($"\n---- Next Turn ----");
+            AddLog($"\n---- 次のターン ----");
 
             yield return new WaitForSeconds(logWaitTime);
 
@@ -413,12 +413,12 @@ public class Manager2 : MonoBehaviour
         // PlayEffect();
 
         // ダメージ
-        AddLog($"{defender.name} took {attackResult.damage} damage!");
+        AddLog($"{defender.name} は {attackResult.damage} のダメージを受けた！");
 
         yield return new WaitForSeconds(logWaitTime);
 
         // 残りHP
-        AddLog($"{defender.name} HP: {defender.hp}");
+        AddLog($"{defender.name} の残りHP: {defender.hp}");
 
         yield return new WaitForSeconds(logWaitTime);
     }
@@ -557,7 +557,7 @@ public class Manager2 : MonoBehaviour
         }
 
         RectTransform effectPosition;
-        bool isLeft = defender.name == "Left";
+        bool isLeft = defender.name == "左";
 
         if (isLeft)
         {
